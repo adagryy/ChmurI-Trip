@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">ITrip</string>
+    <string name="system_app_name">ITrip - podróże</string>
+    <string name="title_activity_main">ITrip</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">ITrip - podróżuj razem z nami </string>
+    <string name="nav_header_subtitle">test@test.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_maps">Mapy</string>
+
+    <!-- Actions related -->
+    <string name="edit_action">Edytuj</string>
+</resources>
