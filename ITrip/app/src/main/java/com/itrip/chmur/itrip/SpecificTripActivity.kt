@@ -36,7 +36,7 @@ class SpecificTripActivity : AppCompatActivity() {
         }
 
         btn_move_to_map.setOnClickListener { _ ->
-            val intent = Intent(this, MapsActivity::class.java)
+            val intent = Intent(this, ShowTripActivity::class.java)
             intent.putExtra("tripName", tripName)
             intent.putExtra("tripTime", tripTime)
             startActivity(intent)

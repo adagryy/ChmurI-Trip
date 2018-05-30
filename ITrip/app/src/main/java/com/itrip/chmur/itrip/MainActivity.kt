@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         this.initializeData()
 
+
+
         val rv: RecyclerView = findViewById(R.id.rv)
 
         rv.setHasFixedSize(true)
@@ -100,6 +102,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_exit -> {
                 this.finish()
                 System.exit(0)
+            }
+            R.id.nav_create -> {
+                val intent = Intent(this, CreateNewTripActivity::class.java)
+//                intent.putExtra("testKey", "testVak")
+                this.startActivity(intent)
             }
         }
 
