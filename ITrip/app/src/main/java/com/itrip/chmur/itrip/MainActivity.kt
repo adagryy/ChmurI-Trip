@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Base64
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -18,7 +19,16 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.util.Log
+import android.widget.Toast
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
 import kotlinx.android.synthetic.main.activity_text_view.view.*
+import com.android.volley.AuthFailureError
+import com.android.volley.toolbox.Volley
+import com.android.volley.RequestQueue
+import org.json.JSONArray
+import org.json.JSONObject
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -32,24 +42,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         this.initializeData()
 
+        ///////////////////////
+
+        ///////////////////////
 
 
-        val rv: RecyclerView = findViewById(R.id.rv)
 
-        rv.setHasFixedSize(true)
-
-        val llm = LinearLayoutManager(applicationContext)
-        rv.layoutManager = llm
-
-        val adapter = RVAdapter(trips, this)
-        rv.adapter = adapter
+//        val rv: RecyclerView = findViewById(R.id.rv)
+//
+//        rv.setHasFixedSize(true)
+//
+//        val llm = LinearLayoutManager(applicationContext)
+//        rv.layoutManager = llm
+//
+//        val adapter = RVAdapter(trips, this)
+//        rv.adapter = adapter
 
         setSupportActionBar(toolbar)
-
-//        fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show()
-//        }
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -124,18 +133,60 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun initializeData() {
         // Tu wg mnie powinien być jakiś mechanizm pobierania wycieczek z serwera
         trips = ArrayList()
-        trips.add(Trip("Podróż 1", "2 lata temu", R.drawable.flower))
-        trips.add(Trip("Wycieczka 2", "25 lat temu", R.drawable.flower))
-        trips.add(Trip("Wyjazd 3", "35 lat temu", R.drawable.flower))
-        trips.add(Trip("Podróż 11", "2 lata temu", R.drawable.flower))
-        trips.add(Trip("Wycieczka 21", "25 lat temu", R.drawable.flower))
-        trips.add(Trip("Wyjazd 31", "35 lat temu", R.drawable.flower))
-        trips.add(Trip("Podróż 12", "2 lata temu", R.drawable.flower))
-        trips.add(Trip("Wycieczka 22", "25 lat temu", R.drawable.flower))
-        trips.add(Trip("Wyjazd 32", "35 lat temu", R.drawable.flower))
-        trips.add(Trip("Podróż 13", "2 lata temu", R.drawable.flower))
-        trips.add(Trip("Wycieczka 23", "25 lat temu", R.drawable.flower))
-        trips.add(Trip("Wyjazd 33", "35 lat temu", R.drawable.flower))
+        val url = "http://104.41.220.226:8080/api/trips"
+
+        val jsonObjectRequest = object : JsonObjectRequest(Request.Method.GET, url, null,
+                Response.Listener { response ->
+                    val jsonArray = JSONArray(response.getString("content"))
+                    val count = jsonArray.length()
+                    for(i: Int in 0..count){
+                        try {
+                            val item = jsonArray.optJSONObject(i)
+                            trips.add(Trip(item.getString("name"), "d",R.drawable.flower))
+                        }catch (e: NullPointerException){}
+                    }
+//                    trips.add()
+
+                    Log.d("TAG", response.toString())
+
+                    val rv: RecyclerView = findViewById(R.id.rv)
+
+                    rv.setHasFixedSize(true)
+
+                    val llm = LinearLayoutManager(applicationContext)
+                    rv.layoutManager = llm
+
+                    val adapter = RVAdapter(trips, this)
+                    rv.adapter = adapter
+                },
+                Response.ErrorListener { error ->
+//                    val d = "Basic " + Base64.encodeToString("user:1234".toByteArray(), Base64.NO_WRAP)
+                    Log.e("TAG", error.message, error)
+                    Toast.makeText(applicationContext, "Timeout", Toast.LENGTH_SHORT).show()
+                }) { //no semicolon or coma
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val params = HashMap<String, String>()
+                params["Content-Type"] = "application/json"
+                params["Authorization"] = "Basic " + Base64.encodeToString("user:1234".toByteArray(), Base64.NO_WRAP)
+                return params
+            }
+        }
+        // Access the RequestQueue through your singleton class.
+        MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest)
+
+//        trips.add(Trip("Podróż 1", "2 lata temu", R.drawable.flower))
+//        trips.add(Trip("Wycieczka 2", "25 lat temu", R.drawable.flower))
+//        trips.add(Trip("Wyjazd 3", "35 lat temu", R.drawable.flower))
+//        trips.add(Trip("Podróż 11", "2 lata temu", R.drawable.flower))
+//        trips.add(Trip("Wycieczka 21", "25 lat temu", R.drawable.flower))
+//        trips.add(Trip("Wyjazd 31", "35 lat temu", R.drawable.flower))
+//        trips.add(Trip("Podróż 12", "2 lata temu", R.drawable.flower))
+//        trips.add(Trip("Wycieczka 22", "25 lat temu", R.drawable.flower))
+//        trips.add(Trip("Wyjazd 32", "35 lat temu", R.drawable.flower))
+//        trips.add(Trip("Podróż 13", "2 lata temu", R.drawable.flower))
+//        trips.add(Trip("Wycieczka 23", "25 lat temu", R.drawable.flower))
+//        trips.add(Trip("Wyjazd 33", "35 lat temu", R.drawable.flower))
     }
 
     internal class RVAdapter(private val trips: MutableList<MainActivity.Trip>, private val mainActivity: MainActivity) : RecyclerView.Adapter<RVAdapter.TripViewHolder>() {

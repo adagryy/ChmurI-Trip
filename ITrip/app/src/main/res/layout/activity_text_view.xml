@@ -35,7 +35,7 @@
                 android:id="@+id/trip_name"
                 android:layout_toRightOf="@+id/trip_photo"
                 android:layout_alignParentTop="true"
-                android:textSize="30sp"
+                android:textSize="20sp"
                 />
 
             <TextView
