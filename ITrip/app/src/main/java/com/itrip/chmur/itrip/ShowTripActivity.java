@@ -46,14 +46,21 @@ public class ShowTripActivity extends FragmentActivity implements OnMapReadyCall
         mMap.setMyLocationEnabled(true);
 
         //Name of gpx file
-        String gpxFile = "schiehallion.gpx";
+        String gpxFile = "http://104.41.220.226:8080/api/trips/e5286823-3762-4be0-8b2e-03d4927f2f5c";
 
         point_Finder point_finder = new point_Finder();
-        ArrayList list_lat = point_finder.finder_lat(gpxFile);
-        ArrayList list_lon = point_finder.finder_lon(gpxFile);
+        // ArrayList list_lat = point_finder.finder_lat(gpxFile);
+        // ArrayList list_lon = point_finder.finder_lon(gpxFile);
+        float[] lat = point_finder.finder_lat(gpxFile);
 
-        for(int i = 0; i<list_lat.size(); i++) {
-            LatLng coordinates = new LatLng(list_lat.indexOf(i), list_lon.indexOf(i));
+        float[] lon = point_finder.finder_lon(gpxFile);
+
+
+        for(int i = 0; i<lat.length; i++) {
+            if(lat[i] == 0 && lon[i] == 0){
+                break;
+            }
+            LatLng coordinates = new LatLng(lat[i], lon[i]);
             mMap.addMarker(new MarkerOptions().position(coordinates).title(""));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(coordinates));
         }
