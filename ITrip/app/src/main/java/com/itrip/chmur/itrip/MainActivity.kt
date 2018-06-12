@@ -142,7 +142,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     for(i: Int in 0..count){
                         try {
                             val item = jsonArray.optJSONObject(i)
-                            trips.add(Trip(item.getString("name"), "d",R.drawable.flower))
+                            trips.add(Trip(item.getString("name"), "",R.drawable.flower))
                         }catch (e: NullPointerException){}
                     }
 //                    trips.add()
