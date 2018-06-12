@@ -25,10 +25,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import kotlinx.android.synthetic.main.activity_text_view.view.*
 import com.android.volley.AuthFailureError
-import com.android.volley.toolbox.Volley
-import com.android.volley.RequestQueue
 import org.json.JSONArray
-import org.json.JSONObject
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -42,7 +39,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         initializeData()
 
-        ///////////////////////
+        /////////////////////////
 
         ///////////////////////
 
@@ -109,12 +106,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 this.startActivity(intent)
             }
             R.id.nav_exit -> {
-                this.finish()
-                System.exit(0)
+                finishAffinity();
             }
             R.id.nav_create -> {
                 val intent = Intent(this, CreateNewTripActivity::class.java)
 //                intent.putExtra("testKey", "testVak")
+                this.startActivity(intent)
+            }
+            R.id.nav_logout -> {
+                val sharedPref = getSharedPreferences(getString(R.string.loginDataKey), Context.MODE_PRIVATE)
+                val editor = sharedPref.edit()
+                editor.clear()
+                editor.commit()
+                val intent = Intent(this, LoginActivity::class.java)
                 this.startActivity(intent)
             }
         }
@@ -133,9 +137,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun initializeData() {
         // Tu wg mnie powinien być jakiś mechanizm pobierania wycieczek z serwera
         trips = ArrayList()
-        val url = "http://104.41.220.226:8080/api/trips"
 
-        val jsonObjectRequest = object : JsonObjectRequest(Request.Method.GET, url, null,
+        val jsonObjectRequest = object : JsonObjectRequest(Request.Method.GET, AppConfigurator.serverDomain + "api/trips", null,
                 Response.Listener { response ->
                     val jsonArray = JSONArray(response.getString("content"))
                     val count = jsonArray.length()
@@ -145,7 +148,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             trips.add(Trip(item.getString("name"), "",R.drawable.flower))
                         }catch (e: NullPointerException){}
                     }
-//                    trips.add()
 
                     Log.d("TAG", response.toString())
 
@@ -160,7 +162,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     rv.adapter = adapter
                 },
                 Response.ErrorListener { error ->
-//                    val d = "Basic " + Base64.encodeToString("user:1234".toByteArray(), Base64.NO_WRAP)
                     Log.e("TAG", error.message, error)
                     Toast.makeText(applicationContext, "Timeout", Toast.LENGTH_SHORT).show()
                 }) { //no semicolon or coma
@@ -168,25 +169,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun getHeaders(): Map<String, String> {
                 val params = HashMap<String, String>()
                 params["Content-Type"] = "application/json"
-                params["Authorization"] = "Basic " + Base64.encodeToString("user:1234".toByteArray(), Base64.NO_WRAP)
+                params["Authorization"] = "Basic " + AppConfigurator.loginData
                 return params
             }
         }
         // Access the RequestQueue through your singleton class.
         MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest)
-
-//        trips.add(Trip("Podróż 1", "2 lata temu", R.drawable.flower))
-//        trips.add(Trip("Wycieczka 2", "25 lat temu", R.drawable.flower))
-//        trips.add(Trip("Wyjazd 3", "35 lat temu", R.drawable.flower))
-//        trips.add(Trip("Podróż 11", "2 lata temu", R.drawable.flower))
-//        trips.add(Trip("Wycieczka 21", "25 lat temu", R.drawable.flower))
-//        trips.add(Trip("Wyjazd 31", "35 lat temu", R.drawable.flower))
-//        trips.add(Trip("Podróż 12", "2 lata temu", R.drawable.flower))
-//        trips.add(Trip("Wycieczka 22", "25 lat temu", R.drawable.flower))
-//        trips.add(Trip("Wyjazd 32", "35 lat temu", R.drawable.flower))
-//        trips.add(Trip("Podróż 13", "2 lata temu", R.drawable.flower))
-//        trips.add(Trip("Wycieczka 23", "25 lat temu", R.drawable.flower))
-//        trips.add(Trip("Wyjazd 33", "35 lat temu", R.drawable.flower))
     }
 
     internal class RVAdapter(private val trips: MutableList<MainActivity.Trip>, private val mainActivity: MainActivity) : RecyclerView.Adapter<RVAdapter.TripViewHolder>() {
